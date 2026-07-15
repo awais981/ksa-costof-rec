@@ -1,30 +1,3 @@
-
-/* ============================================================
-   Pakistan Recruitment Cost Calculator
-   
-   Step 1 inputs:
-       Annual salary:              name="annual-salary"          (required)
-       No. of positions:           name="positions"              (required)
-       Hiring city/province:       name="hiring-city"            (optional — drives EOBI + PSS)
-       Job board advertising:      name="job-board-advertising"  (optional)
-       Agency fee:                 name="agency-fee"             (optional)
-       EOBI Contribution:          name="eobi"                   (auto-filled, read-only)
-       Provincial Social Security: name="provincial-ss"          (auto-filled, read-only)
-       Background checks:          name="background-checks"      (optional)
-       Relocation package:         name="relocation-package"     (optional)
-       Onboarding & training:      name="onboarding-training"    (optional)
-
-   Province flat rates:
-       Punjab / Sindh / KP / ICT  → EOBI: PKR 24,000 | PSS: PKR 28,800 (ICT PSS = 0)
-       Balochistan                 → EOBI: PKR 22,200 | PSS: PKR 26,640
-
-   Formula:
-       Total Cost / Hire = Job Board + Agency Fee + EOBI + PSS
-                         + Background Checks + Relocation + Onboarding
-       % of Annual Salary = Total Cost / Hire ÷ Annual Salary × 100
-       Total All Positions = Total Cost / Hire × Positions
-   ============================================================ */
-
 (function () {
   "use strict";
 
