@@ -1,3 +1,29 @@
+/* ============================================================
+   Pakistan Recruitment Cost Calculator
+   
+   Step 1 inputs:
+       Annual salary:              name="annual-salary"          (required)
+       No. of positions:           name="positions"              (required)
+       Hiring city/province:       name="hiring-city"            (optional — drives EOBI + PSS)
+       Job board advertising:      name="job-board-advertising"  (optional)
+       Agency fee:                 name="agency-fee"             (optional)
+       EOBI Contribution:          name="eobi"                   (auto-filled, read-only)
+       Provincial Social Security: name="provincial-ss"          (auto-filled, read-only)
+       Background checks:          name="background-checks"      (optional)
+       Relocation package:         name="relocation-package"     (optional)
+       Onboarding & training:      name="onboarding-training"    (optional)
+
+   Province flat rates:
+       Punjab / Sindh / KP / ICT  → EOBI: PKR 24,000 | PSS: PKR 28,800 (ICT PSS = 0)
+       Balochistan                 → EOBI: PKR 22,200 | PSS: PKR 26,640
+
+   Formula:
+       Total Cost / Hire = Job Board + Agency Fee + EOBI + PSS
+                         + Background Checks + Relocation + Onboarding
+       % of Annual Salary = Total Cost / Hire ÷ Annual Salary × 100
+       Total All Positions = Total Cost / Hire × Positions
+   ============================================================ */
+
 (function () {
   "use strict";
 
@@ -201,12 +227,30 @@
     return !PERSONAL_EMAIL_DOMAINS.includes(email.split("@")[1].toLowerCase());
   }
 
-  function validateStep3() {
-    const hiring = getField("hiring-status")?.value?.trim() || "";
-    const email  = getField("business-email")?.value?.trim() || "";
-    const phone  = getField("phone-number")?.value?.trim() || "";
-    return hiring !== "" && isBusinessEmail(email) && phone !== "";
+  function isValidPhoneNumber(fullNumber) {
+  try {
+    var phoneNumber = window.libphonenumber.parsePhoneNumber(fullNumber);
+    return phoneNumber.isValid();
+  } catch (e) {
+    return false;
   }
+}
+
+  
+  function validateStep3() {
+  const hiringField = getField("hiring-status");
+  const emailField = getField("business-email");
+  const phoneField = getField("phone-number");
+
+  const hiring = hiringField ? hiringField.value.trim() : "";
+  const email = emailField ? emailField.value.trim() : "";
+  const phone = phoneField ? phoneField.value.trim() : "";
+  const dialCode = state.formData.dialCode || "+966";
+
+  const fullNumber = dialCode + phone.replace(/^0+/, "");
+
+  return hiring !== "" && isBusinessEmail(email) && isValidPhoneNumber(fullNumber);
+}
 
   function showEmailError(msg) {
     const emailField = getField("business-email");
@@ -507,77 +551,320 @@
 
   /* ─── Dial Code Selector ────────────────────────────────────── */
   const DIAL_CODES = [
-    { code: "+92",  flag: "🇵🇰", name: "Pakistan"     },
-    { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
-    { code: "+971", flag: "🇦🇪", name: "UAE"          },
-    { code: "+965", flag: "🇰🇼", name: "Kuwait"       },
-    { code: "+974", flag: "🇶🇦", name: "Qatar"        },
-    { code: "+973", flag: "🇧🇭", name: "Bahrain"      },
-    { code: "+968", flag: "🇴🇲", name: "Oman"         },
-    { code: "+1",   flag: "🇺🇸", name: "USA"          },
-    { code: "+44",  flag: "🇬🇧", name: "UK"           },
-    { code: "+91",  flag: "🇮🇳", name: "India"        },
-    { code: "+20",  flag: "🇪🇬", name: "Egypt"        },
-    { code: "+962", flag: "🇯🇴", name: "Jordan"       },
-    { code: "+961", flag: "🇱🇧", name: "Lebanon"      },
-    { code: "+880", flag: "🇧🇩", name: "Bangladesh"   },
-    { code: "+94",  flag: "🇱🇰", name: "Sri Lanka"    },
-    { code: "+63",  flag: "🇵🇭", name: "Philippines"  },
-  ];
+  { code: "+93", name: "Afghanistan" },
+  { code: "+355", name: "Albania" },
+  { code: "+213", name: "Algeria" },
+  { code: "+376", name: "Andorra" },
+  { code: "+244", name: "Angola" },
+  { code: "+54", name: "Argentina" },
+  { code: "+374", name: "Armenia" },
+  { code: "+61", name: "Australia" },
+  { code: "+43", name: "Austria" },
+  { code: "+994", name: "Azerbaijan" },
+  { code: "+973", name: "Bahrain" },
+  { code: "+880", name: "Bangladesh" },
+  { code: "+375", name: "Belarus" },
+  { code: "+32", name: "Belgium" },
+  { code: "+591", name: "Bolivia" },
+  { code: "+387", name: "Bosnia and Herzegovina" },
+  { code: "+55", name: "Brazil" },
+  { code: "+359", name: "Bulgaria" },
+  { code: "+855", name: "Cambodia" },
+  { code: "+237", name: "Cameroon" },
+  { code: "+1", name: "Canada" },
+  { code: "+56", name: "Chile" },
+  { code: "+86", name: "China" },
+  { code: "+57", name: "Colombia" },
+  { code: "+385", name: "Croatia" },
+  { code: "+357", name: "Cyprus" },
+  { code: "+420", name: "Czech Republic" },
+  { code: "+45", name: "Denmark" },
+  { code: "+593", name: "Ecuador" },
+  { code: "+20", name: "Egypt" },
+  { code: "+372", name: "Estonia" },
+  { code: "+251", name: "Ethiopia" },
+  { code: "+358", name: "Finland" },
+  { code: "+33", name: "France" },
+  { code: "+995", name: "Georgia" },
+  { code: "+49", name: "Germany" },
+  { code: "+233", name: "Ghana" },
+  { code: "+30", name: "Greece" },
+  { code: "+502", name: "Guatemala" },
+  { code: "+852", name: "Hong Kong" },
+  { code: "+36", name: "Hungary" },
+  { code: "+91", name: "India" },
+  { code: "+62", name: "Indonesia" },
+  { code: "+98", name: "Iran" },
+  { code: "+964", name: "Iraq" },
+  { code: "+353", name: "Ireland" },
+  { code: "+972", name: "Israel" },
+  { code: "+39", name: "Italy" },
+  { code: "+81", name: "Japan" },
+  { code: "+962", name: "Jordan" },
+  { code: "+7", name: "Kazakhstan" },
+  { code: "+254", name: "Kenya" },
+  { code: "+965", name: "Kuwait" },
+  { code: "+371", name: "Latvia" },
+  { code: "+961", name: "Lebanon" },
+  { code: "+218", name: "Libya" },
+  { code: "+370", name: "Lithuania" },
+  { code: "+352", name: "Luxembourg" },
+  { code: "+60", name: "Malaysia" },
+  { code: "+356", name: "Malta" },
+  { code: "+52", name: "Mexico" },
+  { code: "+373", name: "Moldova" },
+  { code: "+212", name: "Morocco" },
+  { code: "+95", name: "Myanmar" },
+  { code: "+977", name: "Nepal" },
+  { code: "+31", name: "Netherlands" },
+  { code: "+64", name: "New Zealand" },
+  { code: "+234", name: "Nigeria" },
+  { code: "+47", name: "Norway" },
+  { code: "+968", name: "Oman" },
+  { code: "+92", name: "Pakistan" },
+  { code: "+970", name: "Palestine" },
+  { code: "+507", name: "Panama" },
+  { code: "+51", name: "Peru" },
+  { code: "+63", name: "Philippines" },
+  { code: "+48", name: "Poland" },
+  { code: "+351", name: "Portugal" },
+  { code: "+974", name: "Qatar" },
+  { code: "+40", name: "Romania" },
+  { code: "+7", name: "Russia" },
+  { code: "+966", name: "Saudi Arabia" },
+  { code: "+221", name: "Senegal" },
+  { code: "+381", name: "Serbia" },
+  { code: "+65", name: "Singapore" },
+  { code: "+421", name: "Slovakia" },
+  { code: "+386", name: "Slovenia" },
+  { code: "+252", name: "Somalia" },
+  { code: "+27", name: "South Africa" },
+  { code: "+82", name: "South Korea" },
+  { code: "+34", name: "Spain" },
+  { code: "+94", name: "Sri Lanka" },
+  { code: "+249", name: "Sudan" },
+  { code: "+46", name: "Sweden" },
+  { code: "+41", name: "Switzerland" },
+  { code: "+963", name: "Syria" },
+  { code: "+886", name: "Taiwan" },
+  { code: "+255", name: "Tanzania" },
+  { code: "+66", name: "Thailand" },
+  { code: "+216", name: "Tunisia" },
+  { code: "+90", name: "Turkey" },
+  { code: "+256", name: "Uganda" },
+  { code: "+380", name: "Ukraine" },
+  { code: "+971", name: "United Arab Emirates" },
+  { code: "+44", name: "United Kingdom" },
+  { code: "+1", name: "United States" },
+  { code: "+598", name: "Uruguay" },
+  { code: "+998", name: "Uzbekistan" },
+  { code: "+58", name: "Venezuela" },
+  { code: "+84", name: "Vietnam" },
+  { code: "+967", name: "Yemen" },
+  { code: "+263", name: "Zimbabwe" },
+];
 
-  function injectDialCodeSelector() {
-    const phoneField = getField("phone-number");
-    if (!phoneField || document.getElementById("dial-code-wrapper")) return;
-    state.formData.dialCode = "+92";
+ function injectDialCodeSelector() {
+  const phoneField = getField("phone-number");
+  if (!phoneField || document.getElementById("dial-code-wrapper")) return;
 
-    const wrapper = document.createElement("div");
-    wrapper.id = "dial-code-wrapper";
-    wrapper.style.cssText = "display:flex;align-items:stretch;gap:0;width:100%;";
+  const URL_TO_DIAL = {
+    "saudi-arabia": "+966", "ksa": "+966", "sa": "+966",
+    "uae": "+971", "dubai": "+971", "abu-dhabi": "+971",
+    "qatar": "+974",
+    "kuwait": "+965",
+    "bahrain": "+973",
+    "oman": "+968",
+    "pakistan": "+92",
+    "india": "+91",
+    "bangladesh": "+880",
+    "sri-lanka": "+94",
+    "nepal": "+977",
+    "philippines": "+63",
+    "indonesia": "+62",
+    "malaysia": "+60",
+    "singapore": "+65",
+    "china": "+86",
+    "japan": "+81",
+    "south-korea": "+82",
+    "egypt": "+20",
+    "jordan": "+962",
+    "lebanon": "+961",
+    "iraq": "+964",
+    "syria": "+963",
+    "yemen": "+967",
+    "palestine": "+970",
+    "israel": "+972",
+    "turkey": "+90",
+    "germany": "+49",
+    "france": "+33",
+    "united-kingdom": "+44", "uk": "+44",
+    "netherlands": "+31",
+    "belgium": "+32",
+    "spain": "+34",
+    "italy": "+39",
+    "poland": "+48",
+    "sweden": "+46",
+    "denmark": "+45",
+    "norway": "+47",
+    "austria": "+43",
+    "romania": "+40",
+    "czech-republic": "+420",
+    "hungary": "+36",
+    "lithuania": "+370",
+    "croatia": "+385",
+    "bulgaria": "+359",
+    "cyprus": "+357",
+    "united-states": "+1", "usa": "+1",
+    "canada": "+1",
+    "morocco": "+212",
+    "nigeria": "+234",
+    "kenya": "+254",
+    "south-africa": "+27",
+    "ghana": "+233",
+    "ethiopia": "+251",
+    "sudan": "+249",
+    "algeria": "+213",
+    "tunisia": "+216",
+    "australia": "+61",
+    "new-zealand": "+64",
+  };
 
-    const dropdownBtn = document.createElement("button");
-    dropdownBtn.type = "button";
-    dropdownBtn.id   = "dial-code-btn";
-    dropdownBtn.style.cssText = "display:flex;align-items:center;gap:6px;padding:0 10px;height:100%;background:#f7f9fc;border:1px solid #cbd5e0;border-right:none;border-radius:4px 0 0 4px;cursor:pointer;white-space:nowrap;font-size:14px;color:#2d3748;min-width:90px;transition:background 0.2s;";
-    dropdownBtn.innerHTML = `<span id="dial-flag">🇵🇰</span><span id="dial-code-label">+92</span><span style="font-size:10px;opacity:0.5;">▼</span>`;
+  const segments = window.location.pathname.replace(/\/$/,'').split('/').filter(Boolean);
+  const lastSeg = segments[segments.length - 1] || '';
+  const secondLastSeg = segments[segments.length - 2] || '';
+  const defaultDial = URL_TO_DIAL[lastSeg] || URL_TO_DIAL[secondLastSeg] || '+966';
+  state.formData.dialCode = defaultDial;
 
-    const dropdownList = document.createElement("div");
-    dropdownList.id = "dial-code-list";
-    dropdownList.style.cssText = "display:none;position:absolute;z-index:9999;background:#fff;border:1px solid #cbd5e0;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.12);max-height:220px;overflow-y:auto;min-width:220px;top:100%;left:0;margin-top:4px;";
+  const wrapper = document.createElement('div');
+  wrapper.id = 'dial-code-wrapper';
+  wrapper.style.cssText = 'display:flex;align-items:stretch;gap:0;width:100%;';
 
-    DIAL_CODES.forEach((dc) => {
-      const item = document.createElement("div");
-      item.style.cssText = "display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:14px;color:#2d3748;";
-      item.innerHTML = `<span>${dc.flag}</span><span>${dc.code}</span><span style="color:#718096;font-size:12px;">${dc.name}</span>`;
-      item.addEventListener("mouseenter", () => item.style.background = "#f0fdf4");
-      item.addEventListener("mouseleave", () => item.style.background = "");
-      item.addEventListener("click", () => {
+  const dropdownBtn = document.createElement('button');
+  dropdownBtn.type = 'button';
+  dropdownBtn.id = 'dial-code-btn';
+  dropdownBtn.style.cssText = [
+    'display:flex;align-items:center;gap:6px;',
+    'padding:0 10px;height:100%;',
+    'background:#f7f9fc;border:1px solid #cbd5e0;border-right:none;',
+    'border-radius:4px 0 0 4px;cursor:pointer;white-space:nowrap;',
+    'font-size:14px;color:#2d3748;min-width:80px;',
+    'transition:background 0.2s;',
+  ].join('');
+  dropdownBtn.innerHTML = `<span id="dial-code-label">${defaultDial}</span>` +
+    '<span style="font-size:10px;opacity:0.5;">▼</span>';
+
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search...';
+  searchInput.style.cssText = [
+    'width:100%;padding:8px 12px;border:none;',
+    'border-bottom:1px solid #e2e8f0;font-size:13px;',
+    'outline:none;color:#2d3748;',
+  ].join('');
+
+  const dropdownList = document.createElement('div');
+  dropdownList.id = 'dial-code-list';
+  dropdownList.style.cssText = [
+    'display:none;position:absolute;z-index:9999;',
+    'background:#fff;border:1px solid #cbd5e0;border-radius:6px;',
+    'box-shadow:0 4px 16px rgba(0,0,0,0.12);',
+    'top:100%;left:0;margin-top:4px;min-width:220px;',
+  ].join('');
+
+  const listInner = document.createElement('div');
+  listInner.style.cssText = 'max-height:200px;overflow-y:auto;';
+  dropdownList.appendChild(searchInput);
+  dropdownList.appendChild(listInner);
+
+  function renderDialList(filter) {
+    listInner.innerHTML = '';
+    const filtered = filter
+      ? DIAL_CODES.filter(dc =>
+          dc.name.toLowerCase().includes(filter.toLowerCase()) ||
+          dc.code.includes(filter)
+        )
+      : DIAL_CODES;
+    if (filtered.length === 0) {
+      listInner.innerHTML = '<div style="padding:12px;font-size:13px;color:#9ca3af;text-align:center;">No results</div>';
+      return;
+    }
+    filtered.forEach(dc => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;font-size:13px;color:#2d3748;';
+      item.innerHTML = `<span>${dc.name}</span><span style="color:#718096;">${dc.code}</span>`;
+      item.addEventListener('mouseenter', () => item.style.background = '#f0fdf4');
+      item.addEventListener('mouseleave', () => item.style.background = dc.code === state.formData.dialCode ? '#f0fdf4' : '');
+      if (dc.code === state.formData.dialCode) item.style.background = '#f0fdf4';
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
         state.formData.dialCode = dc.code;
-        document.getElementById("dial-flag").textContent      = dc.flag;
-        document.getElementById("dial-code-label").textContent = dc.code;
-        dropdownList.style.display = "none";
+        document.getElementById('dial-code-label').textContent = dc.code;
+        dropdownList.style.display = 'none';
         updateViewCalcBtn();
+        const phoneField = getField('phone-number');
+        if (phoneField && phoneField.value.trim() !== '') {
+          const fullNumber = dc.code + phoneField.value.trim().replace(/^0+/, '');
+          const valid = isValidPhoneNumber(fullNumber);
+          let phoneErrEl = document.getElementById('phone-error-msg');
+          if (!phoneErrEl) {
+            phoneErrEl = document.createElement('div');
+            phoneErrEl.id = 'phone-error-msg';
+            phoneErrEl.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;display:none;';
+            phoneErrEl.textContent = 'Please enter a valid phone number.';
+            const dw = document.getElementById('dial-code-wrapper');
+            const ia = dw || phoneField.parentNode;
+            ia.parentNode.insertBefore(phoneErrEl, ia.nextSibling);
+          }
+          phoneErrEl.style.display = valid ? 'none' : 'block';
+        }
       });
-      dropdownList.appendChild(item);
-    });
+      listInner.appendChild(item);
+    }); // closes filtered.forEach
+  } // closes renderDialList
 
-    const relContainer = document.createElement("div");
-    relContainer.style.cssText = "position:relative;flex-shrink:0;";
-    relContainer.appendChild(dropdownBtn);
-    relContainer.appendChild(dropdownList);
+  searchInput.addEventListener('input', () => renderDialList(searchInput.value));
 
-    dropdownBtn.addEventListener("click", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dropdownList.style.display = dropdownList.style.display === "block" ? "none" : "block";
-    });
-    document.addEventListener("click", (e) => {
-      if (!relContainer.contains(e.target)) dropdownList.style.display = "none";
-    });
+  const relContainer = document.createElement('div');
+  relContainer.style.cssText = 'position:relative;flex-shrink:0;';
+  relContainer.appendChild(dropdownBtn);
+  relContainer.appendChild(dropdownList);
 
-    phoneField.style.cssText += "border-radius:0 4px 4px 0;border-left:none;flex:1;";
-    phoneField.parentNode.insertBefore(wrapper, phoneField);
-    wrapper.appendChild(relContainer);
-    wrapper.appendChild(phoneField);
+  dropdownBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isOpen = dropdownList.style.display === 'block';
+    if (isOpen) {
+      dropdownList.style.display = 'none';
+    } else {
+      dropdownList.style.display = 'block';
+      searchInput.value = '';
+      renderDialList('');
+      setTimeout(() => searchInput.focus(), 30);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!relContainer.contains(e.target)) dropdownList.style.display = 'none';
+  });
+
+  phoneField.style.cssText += 'border-radius:0 4px 4px 0;border-left:none;flex:1;';
+  phoneField.parentNode.insertBefore(wrapper, phoneField);
+  wrapper.appendChild(relContainer);
+  wrapper.appendChild(phoneField);
+
+  let phoneErrEl = document.getElementById('phone-error-msg');
+  if (!phoneErrEl) {
+    phoneErrEl = document.createElement('div');
+    phoneErrEl.id = 'phone-error-msg';
+    phoneErrEl.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;display:none;';
+    phoneErrEl.textContent = 'Please enter a valid phone number.';
+    wrapper.parentNode.insertBefore(phoneErrEl, wrapper.nextSibling);
   }
+
+  renderDialList('');
+}
+
 
   /* ─── Reset ─────────────────────────────────────────────────── */
   function resetForm() {
@@ -826,4 +1113,3 @@
     init();
   }
 })();
-
