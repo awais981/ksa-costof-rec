@@ -1,4 +1,4 @@
-<script>
+
 /* ============================================================
    Pakistan Recruitment Cost Calculator
    
@@ -853,4 +853,4 @@
     init();
   }
 })();
-</script>
+
