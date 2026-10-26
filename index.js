@@ -153,7 +153,7 @@
   
   function validateStep3() {
   const hiringField = getField("hiring-status");
-  const emailField = getField("business-email");
+  const emailField = getField("email");
   const phoneField = getField("phone-number");
 
   const hiring = hiringField ? hiringField.value.trim() : "";
@@ -167,7 +167,7 @@
 }
 
   function showEmailError(msg) {
-    const emailField = getField("business-email");
+    const emailField = getField("email");
     if (!emailField) return;
     let errEl = document.getElementById("email-error-msg");
     if (!errEl) {
@@ -774,7 +774,7 @@
       "annual-salary", "positions", "job-board-advertising",
       "agency-fee", "iqama", "gosi",                          // ✅ updated
       "nitaqat-levy", "background-checks", "relocation-package",
-      "onboarding-training", "business-email", "phone-number",
+      "onboarding-training", "email", "phone-number",
     ].forEach((name) => {
       const f = getField(name);
       if (f) f.value = "";
@@ -892,7 +892,7 @@
   }
 });
 
-    const emailField = getField("business-email");
+    const emailField = getField("email");
     if (emailField) {
       emailField.addEventListener("input", () => { updateViewCalcBtn(); showEmailError(null); });
       emailField.addEventListener("blur", () => {
@@ -918,7 +918,7 @@
       viewCalcBtn.style.pointerEvents = "auto";
       viewCalcBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        const emailVal = getField("business-email")?.value.trim() || "";
+        const emailVal = getField("email")?.value.trim() || "";
         if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
           showEmailError("Please enter a valid email address.");
         } else if (emailVal && !isBusinessEmail(emailVal)) {
@@ -927,7 +927,7 @@
         if (!validateStep3()) return;
         showEmailError(null);
         state.formData.hiringStatus  = getField("hiring-status")?.value || "";
-        state.formData.businessEmail = getField("business-email")?.value || "";
+        state.formData.businessEmail = getField("email")?.value || "";
         state.formData.phoneNumber   = getField("phone-number")?.value || "";
         submitRecruiterFormToWebflow();
         calculateCost();
