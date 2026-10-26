@@ -154,7 +154,7 @@
   function validateStep3() {
   const hiringField = getField("hiring-status");
   const emailField = getField("email");
-  const phoneField = getField("phone-number");
+  const phoneField = getField("phone");
 
   const hiring = hiringField ? hiringField.value.trim() : "";
   const email = emailField ? emailField.value.trim() : "";
@@ -567,7 +567,7 @@
 ];
 
   function injectDialCodeSelector() {
-  const phoneField = getField("phone-number");
+  const phoneField = getField("phone");
   if (!phoneField || document.getElementById("dial-code-wrapper")) return;
 
   const URL_TO_DIAL = {
@@ -704,7 +704,7 @@
         document.getElementById('dial-code-label').textContent = dc.code;
         dropdownList.style.display = 'none';
         updateViewCalcBtn();
-        const phoneField = getField('phone-number');
+        const phoneField = getField('phone');
         if (phoneField && phoneField.value.trim() !== '') {
           const fullNumber = dc.code + phoneField.value.trim().replace(/^0+/, '');
           const valid = isValidPhoneNumber(fullNumber);
@@ -774,7 +774,7 @@
       "annual-salary", "positions", "job-board-advertising",
       "agency-fee", "iqama", "gosi",                          // ✅ updated
       "nitaqat-levy", "background-checks", "relocation-package",
-      "onboarding-training", "email", "phone-number",
+      "onboarding-training", "email", "phone",
     ].forEach((name) => {
       const f = getField(name);
       if (f) f.value = "";
@@ -867,12 +867,12 @@
     updateViewCalcBtn();
     injectDialCodeSelector();
 
-   ["hiring-status", "phone-number"].forEach((name) => {
+   ["hiring-status", "phone"].forEach((name) => {
   const f = getField(name);
   if (f) {
     f.addEventListener(f.tagName === "SELECT" ? "change" : "input", () => {
       updateViewCalcBtn();
-      if (name === "phone-number" && f.value.trim() !== "") {
+      if (name === "phone" && f.value.trim() !== "") {
         const dialCode = state.formData.dialCode || "+966";
         const fullNumber = dialCode + f.value.trim().replace(/^0+/, "");
         const valid = isValidPhoneNumber(fullNumber);
@@ -928,7 +928,7 @@
         showEmailError(null);
         state.formData.hiringStatus  = getField("hiring-status")?.value || "";
         state.formData.businessEmail = getField("email")?.value || "";
-        state.formData.phoneNumber   = getField("phone-number")?.value || "";
+        state.formData.phoneNumber   = getField("phone")?.value || "";
         submitRecruiterFormToWebflow();
         calculateCost();
         renderResultTable(state.results);
